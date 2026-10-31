@@ -1,0 +1,21 @@
+name: Export YOLOv8n ONNX
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install ultralytics onnx
+      - run: yolo export model=yolov8n.pt format=onnx imgsz=320 opset=12
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add yolov8n.onnx
+          git commit -m "Add yolov8n.onnx"
+          git push
