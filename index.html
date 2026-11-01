@@ -146,7 +146,7 @@ function postprocess(out, scale, padX, padY, conf, drivingOnly) {
 
 function draw(dets) {
   const fs = Math.max(14, Math.round(view.width / 45));
-  vctx.lineWidth = Math.max(2, Math.round(view.width / 300));
+  vctx.lineWidth = Math.max(3, Math.round(view.width / 200));
   vctx.font = `bold ${fs}px system-ui, sans-serif`;
   vctx.textBaseline = 'top';
   for (const d of dets) {
@@ -165,12 +165,13 @@ function draw(dets) {
 async function loop() {
   if (!running) return;
   const t0 = performance.now();
-  vctx.drawImage(video, 0, 0, view.width, view.height);
 
   const { tensor, scale, padX, padY } = preprocess();
   const results = await session.run({ [session.inputNames[0]]: tensor });
   const out = results[session.outputNames[0]];
   const dets = postprocess(out, scale, padX, padY, parseFloat($('conf').value), $('driving').checked);
+  // draw the video frame and the boxes together, so the screen never shows one without the other
+  vctx.drawImage(video, 0, 0, view.width, view.height);
   draw(dets);
 
   const dt = performance.now() - t0;
